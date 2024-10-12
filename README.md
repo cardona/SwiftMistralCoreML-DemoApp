@@ -1,6 +1,6 @@
 # SwiftMistralCoreML Demo App
 
-A small macOS application demonstrating how to use the `SwiftMistralCoreML` library for generating conversational AI responses using the Mistral-Interact7B CoreML. This application features a simple user interface built with SwiftUI, allowing users to interact with the model in real-time.
+A small macOS application demonstrating how to use the [SwiftMistralCoreML](https://github.com/cardona/SwiftMistralCoreML) library for generating conversational AI responses using the Mistral-Interact7B CoreML. This application features a simple user interface built with SwiftUI, allowing users to interact with the model in real-time.
 
 ## Features
 
@@ -69,7 +69,7 @@ You can toggle between **Light** and **Dark** themes by selecting the preferred 
 
 ## Customization
 
-Feel free to extend or modify the app to suit your needs. The underlying `SwiftMistralCoreML` library is designed to be flexible, and you can replace or add components like different decoding strategies or change the interaction flow.
+Feel free to extend or modify the app to suit your needs. The underlying [SwiftMistralCoreML](https://github.com/cardona/SwiftMistralCoreML) library is designed to be flexible, and you can replace or add components like different decoding strategies or change the interaction flow.
 
 ## Contributing
 
@@ -81,4 +81,4 @@ This project is licensed under the MIT License.
 
 ---
 
-*This demo app showcases the capabilities of `SwiftMistralCoreML` by providing a simple and interactive way to experience conversational AI on macOS.*
+*This demo app showcases the capabilities of [SwiftMistralCoreML](https://github.com/cardona/SwiftMistralCoreML) by providing a simple and interactive way to experience conversational AI on macOS.*
