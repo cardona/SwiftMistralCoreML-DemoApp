@@ -2,6 +2,10 @@
 
 A small macOS application demonstrating how to use the [SwiftMistralCoreML](https://github.com/cardona/SwiftMistralCoreML) library for generating conversational AI responses using the Mistral-Interact7B CoreML. This application features a simple user interface built with SwiftUI, allowing users to interact with the model in real-time.
 
+
+![Demo of SwiftMistralCoreML App](demo.gif)
+
+
 ## Features
 
 - **Interactive Chat**: Send input prompts to the model and receive real-time responses.
