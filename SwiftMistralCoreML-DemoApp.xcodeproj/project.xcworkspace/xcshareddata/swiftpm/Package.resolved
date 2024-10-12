@@ -1,0 +1,15 @@
+{
+  "originHash" : "90d00952ae74f4918c27e0f10c0d94533b3808f334b13c01ecdfdb2b26b3da36",
+  "pins" : [
+    {
+      "identity" : "swiftmistralcoreml",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cardona/SwiftMistralCoreML",
+      "state" : {
+        "revision" : "1e5765b0126fd66c9ce3dad17078ccdeed53c14a",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
