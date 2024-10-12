@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		557F0B6D2CBADCC800884A59 /* SwiftMistralCoreML in Frameworks */ = {isa = PBXBuildFile; productRef = 557F0B6C2CBADCC800884A59 /* SwiftMistralCoreML */; };
+		557F0B9C2CBB0B8A00884A59 /* SwiftMistralCoreML in Frameworks */ = {isa = PBXBuildFile; productRef = 557F0B9B2CBB0B8A00884A59 /* SwiftMistralCoreML */; };
+		557F0BF72CBB1B0C00884A59 /* SwiftMistralCoreML in Frameworks */ = {isa = PBXBuildFile; productRef = 557F0BF62CBB1B0C00884A59 /* SwiftMistralCoreML */; };
+		557F0BFA2CBB1B2300884A59 /* SwiftMistralCoreML in Frameworks */ = {isa = PBXBuildFile; productRef = 557F0BF92CBB1B2300884A59 /* SwiftMistralCoreML */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +58,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				557F0B6D2CBADCC800884A59 /* SwiftMistralCoreML in Frameworks */,
+				557F0B9C2CBB0B8A00884A59 /* SwiftMistralCoreML in Frameworks */,
+				557F0BF72CBB1B0C00884A59 /* SwiftMistralCoreML in Frameworks */,
+				557F0BFA2CBB1B2300884A59 /* SwiftMistralCoreML in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,7 +121,9 @@
 			);
 			name = "SwiftMistralCoreML-DemoApp";
 			packageProductDependencies = (
-				557F0B6C2CBADCC800884A59 /* SwiftMistralCoreML */,
+				557F0B9B2CBB0B8A00884A59 /* SwiftMistralCoreML */,
+				557F0BF62CBB1B0C00884A59 /* SwiftMistralCoreML */,
+				557F0BF92CBB1B2300884A59 /* SwiftMistralCoreML */,
 			);
 			productName = "SwiftMistralCoreML-DemoApp";
 			productReference = 557F0B3B2CBADC7900884A59 /* SwiftMistralCoreML-DemoApp.app */;
@@ -202,7 +208,7 @@
 			mainGroup = 557F0B322CBADC7900884A59;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				557F0B6B2CBADCC800884A59 /* XCRemoteSwiftPackageReference "SwiftMistralCoreML" */,
+				557F0BF82CBB1B2300884A59 /* XCRemoteSwiftPackageReference "SwiftMistralCoreML" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 557F0B3C2CBADC7900884A59 /* Products */;
@@ -560,20 +566,28 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		557F0B6B2CBADCC800884A59 /* XCRemoteSwiftPackageReference "SwiftMistralCoreML" */ = {
+		557F0BF82CBB1B2300884A59 /* XCRemoteSwiftPackageReference "SwiftMistralCoreML" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cardona/SwiftMistralCoreML";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 1.1.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		557F0B6C2CBADCC800884A59 /* SwiftMistralCoreML */ = {
+		557F0B9B2CBB0B8A00884A59 /* SwiftMistralCoreML */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 557F0B6B2CBADCC800884A59 /* XCRemoteSwiftPackageReference "SwiftMistralCoreML" */;
+			productName = SwiftMistralCoreML;
+		};
+		557F0BF62CBB1B0C00884A59 /* SwiftMistralCoreML */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftMistralCoreML;
+		};
+		557F0BF92CBB1B2300884A59 /* SwiftMistralCoreML */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 557F0BF82CBB1B2300884A59 /* XCRemoteSwiftPackageReference "SwiftMistralCoreML" */;
 			productName = SwiftMistralCoreML;
 		};
 /* End XCSwiftPackageProductDependency section */

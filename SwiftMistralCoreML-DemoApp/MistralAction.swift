@@ -15,12 +15,20 @@ import SwiftMistralCoreML
 final class MistralAction {
     /// An array of messages used in the conversation with the model.
     private var messages: [Message] = []
+    private let textGenerator: TextGenerator
     
+    init() throws {
+        do {
+            self.textGenerator = try TextGenerator()
+        } catch {
+            throw ActionError.textGenerationFailed
+        }
+        
+    }
+    
+ 
     func execute(parameters: MistralParameters, onTokenGenerated: @escaping (String) -> Void, completion: @escaping () -> Void) async {
         do {
-            // Initialize the tokenizer parser and BPE encoder.
-            let tokenizerParser = try TokenizerParser()
-            let bpeEncoder = BPEEncoder(tokenizerParser: tokenizerParser)
             
             // Update system prompt if provided.
             updateSystemPromptIfNeeded(using: parameters)
@@ -28,13 +36,8 @@ final class MistralAction {
             // Add the user's input to the messages.
             messages.append(Message(role: .user, content: parameters.userInput))
             
-            // Prepare the input for the Mistral model.
-            let mistralInput = try MistralInput(messages: messages, bpeEncoder: bpeEncoder, tokenizer: tokenizerParser)
-    
-            // Create a text generator with the model and encoders.
-            let textGenerator = try TextGenerator(bpeEncoder: bpeEncoder, tokenizerParser: tokenizerParser)
             
-            let generatedText = try await textGenerator.generateText(from: mistralInput.inputTokens, using: parameters, progressHandler: { generatedWord in
+            let generatedText = try await textGenerator.generateText(messages: messages, using: parameters, progressHandler: { generatedWord in
                 // Clean and send the generated word to the UI.
                 onTokenGenerated(generatedWord.cleanGeneratedText())
             })
@@ -61,5 +64,9 @@ final class MistralAction {
     private func handleError(_ error: Error) {
         // Implement appropriate error handling here.
         print("Error: \(error.localizedDescription)")
+    }
+    
+    enum ActionError: Error {
+        case textGenerationFailed
     }
 }
