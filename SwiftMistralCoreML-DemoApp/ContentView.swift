@@ -24,7 +24,7 @@ struct ContentView: View {
     @State private var selectedTheme: Theme = .light
     @State private var isGenerating: Bool = false
     
-    private let mistral = MistralAction()
+    private let mistral = try? MistralAction()
     
     private var colors: ThemeColors {
         ThemeColors.colors(for: selectedTheme)
@@ -258,7 +258,7 @@ struct ContentView: View {
         
         displayedText += "\nAssistant: "
         
-        await mistral.execute(parameters: parameters) { newGeneratedWord in
+        await mistral?.execute(parameters: parameters) { newGeneratedWord in
             DispatchQueue.main.async {
                 displayedText += newGeneratedWord
             }

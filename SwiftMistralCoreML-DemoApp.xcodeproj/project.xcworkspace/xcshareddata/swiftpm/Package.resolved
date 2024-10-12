@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/cardona/SwiftMistralCoreML",
       "state" : {
-        "revision" : "1e5765b0126fd66c9ce3dad17078ccdeed53c14a",
-        "version" : "1.0.0"
+        "revision" : "188d9d41cf3c7d58b1d806b61628d7f46ea4c96a",
+        "version" : "1.1.0"
       }
     }
   ],
