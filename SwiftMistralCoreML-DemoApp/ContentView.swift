@@ -13,7 +13,6 @@ enum Theme: String, CaseIterable {
     case dark = "Dark"
 }
 
-
 struct ContentView: View {
     @State private var userInput: String = "How many taxis are there in New York?"
     @State private var displayedText: String = ""
@@ -23,6 +22,11 @@ struct ContentView: View {
     @State private var topKValue: Int = 10
     @State private var selectedTheme: Theme = .light
     @State private var isGenerating: Bool = false
+    @State private var selectedModelType: MistralType = .int4
+    @State private var tokensPerSecond: Double = 0.0
+    @State private var timeSinceFirstToken: Double = 0.0
+    @State private var firstTokenTime: Double? = nil
+    @State private var totalTokens: Int = 0
     
     private let mistral = try? MistralAction()
     
@@ -33,23 +37,25 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 10) {
             modelOutputSection()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.bottom, 10)
             
             HStack(alignment: .top) {
                 VStack(spacing: 20) {
                     systemPromptSection()
                     userInputSection()
                 }
-                .frame(width: 700, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 
                 controlsSection()
-                    .frame(width: 250)
+                    .frame(width: 300)
                     .padding(.leading, 20)
             }
             .padding(.horizontal, 20)
         }
         .background(colors.background)
-        .frame(maxWidth: 1000, maxHeight: 500)
         .preferredColorScheme(selectedTheme == .dark ? .dark : .light)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     @ViewBuilder
@@ -69,24 +75,30 @@ struct ContentView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 .help("Copy to clipboard")
+                
+                Button(action: clearOutput) {
+                    Image(systemName: "trash")
+                        .foregroundColor(colors.text)
+                        .padding(.trailing, 10)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .help("Clear output")
             }
             
             ScrollViewReader { scrollViewProxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
-                        ForEach(displayedText.split(separator: "\n"), id: \.self) { line in
+                        ForEach(displayedText.split(separator: "\n"), id: \ .self) { line in
                             if line.hasPrefix("User:") {
                                 Text(line)
                                     .foregroundColor(.blue)
                                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                                     .padding(.bottom, 2)
-                                Spacer().frame(height: 10)
                             } else if line.hasPrefix("Assistant:") {
                                 Text(line)
                                     .foregroundColor(colors.text)
                                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                                     .padding(.bottom, 2)
-                                Spacer().frame(height: 10)
                             } else {
                                 Text(line)
                                     .foregroundColor(colors.text)
@@ -108,9 +120,7 @@ struct ContentView: View {
             }
         }
         .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
     
     @ViewBuilder
     private func systemPromptSection() -> some View {
@@ -139,6 +149,7 @@ struct ContentView: View {
                 .foregroundColor(colors.text)
                 .font(.system(size: 12, weight: .regular, design: .monospaced))
                 .frame(height: selectedAlgorithm == .topK ? 160 : 100)
+                .frame(maxWidth: .infinity)
         }
     }
     
@@ -146,6 +157,7 @@ struct ContentView: View {
     private func controlsSection() -> some View {
         VStack(alignment: .leading, spacing: 20) {
             themePicker()
+            modelTypePicker()
             decodingAlgorithmPicker()
             
             if selectedAlgorithm == .topK {
@@ -153,9 +165,9 @@ struct ContentView: View {
             }
             
             maxTokensSlider()
+            tokenStatistics()
             sendButton()
         }
-        .frame(maxHeight: .infinity, alignment: .top)
     }
     
     @ViewBuilder
@@ -168,6 +180,22 @@ struct ContentView: View {
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
+        }
+    }
+    
+    @ViewBuilder
+    private func modelTypePicker() -> some View {
+        VStack(alignment: .leading) {
+            Text("Model Type:")
+                .font(.headline)
+                .foregroundColor(colors.text)
+            Picker("Mistral7B-Instruct", selection: $selectedModelType) {
+                Text("Int4").tag(MistralType.int4)
+                Text("Float16").tag(MistralType.fp16)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .background(colors.background)
+            .foregroundColor(colors.text)
         }
     }
     
@@ -216,6 +244,18 @@ struct ContentView: View {
     }
     
     @ViewBuilder
+    private func tokenStatistics() -> some View {
+        VStack(alignment: .leading) {
+            Text("Tokens per Second: \(tokensPerSecond, specifier: "%.2f")")
+                .font(.headline)
+                .foregroundColor(colors.text)
+            Text("Time Since First Token: \(timeSinceFirstToken, specifier: "%.2f") seconds")
+                .font(.headline)
+                .foregroundColor(colors.text)
+        }
+    }
+    
+    @ViewBuilder
     private func sendButton() -> some View {
         Button(action: {
             Task {
@@ -249,6 +289,7 @@ struct ContentView: View {
         }
         
         let parameters = MistralParameters(
+            modelType: selectedModelType,
             userInput: userInput,
             systemPrompt: systemPrompt,
             algorithm: selectedAlgorithm,
@@ -258,12 +299,28 @@ struct ContentView: View {
         
         displayedText += "\nAssistant: "
         
+        let startTime = Date()
+        var tokenCount = 0
+        var elapsedTimeWithoutFirstToken: TimeInterval = 0
+        
         await mistral?.execute(parameters: parameters) { newGeneratedWord in
             DispatchQueue.main.async {
                 displayedText += newGeneratedWord
+                tokenCount += 1
+                if tokenCount == 1 {
+                    firstTokenTime = Date().timeIntervalSince(startTime)
+                    timeSinceFirstToken = firstTokenTime ?? 0.0
+                } else if let firstTokenTime = firstTokenTime {
+                    let elapsedTime = Date().timeIntervalSince(startTime) - firstTokenTime
+                    elapsedTimeWithoutFirstToken = elapsedTime
+                    tokensPerSecond = elapsedTime > 0 ? Double(tokenCount - 1) / elapsedTime : 0.0
+                }
             }
         } completion: {
             DispatchQueue.main.async {
+                if let firstTokenTime = firstTokenTime, tokenCount > 1 {
+                    tokensPerSecond = (Date().timeIntervalSince(startTime) - firstTokenTime) > 0 ? Double(tokenCount - 1) / elapsedTimeWithoutFirstToken : 0.0
+                }
                 isGenerating = false
             }
         }
@@ -274,7 +331,12 @@ struct ContentView: View {
         pasteboard.clearContents()
         pasteboard.setString(displayedText, forType: .string)
     }
+    
+    private func clearOutput() {
+        displayedText = ""
+    }
 }
+
 
 #Preview {
     ContentView()

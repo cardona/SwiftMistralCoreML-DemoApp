@@ -23,10 +23,8 @@ final class MistralAction {
         } catch {
             throw ActionError.textGenerationFailed
         }
-        
     }
     
- 
     func execute(parameters: MistralParameters, onTokenGenerated: @escaping (String) -> Void, completion: @escaping () -> Void) async {
         do {
             
@@ -35,7 +33,6 @@ final class MistralAction {
             
             // Add the user's input to the messages.
             messages.append(Message(role: .user, content: parameters.userInput))
-            
             
             let generatedText = try await textGenerator.generateText(messages: messages, using: parameters, progressHandler: { generatedWord in
                 // Clean and send the generated word to the UI.
