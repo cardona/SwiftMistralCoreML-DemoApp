@@ -28,6 +28,9 @@ struct ContentView: View {
     @State private var firstTokenTime: Double? = nil
     @State private var totalTokens: Int = 0
     
+    @FocusState private var isUserInputFocused: Bool
+    @FocusState private var isSystemPromptFocused: Bool
+    
     private let mistral = try? MistralAction()
     
     private var colors: ThemeColors {
@@ -35,29 +38,81 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack(spacing: 10) {
-            modelOutputSection()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.bottom, 10)
-            
-            HStack(alignment: .top) {
-                VStack(spacing: 20) {
-                    systemPromptSection()
-                    userInputSection()
+        #if os(iOS)
+        NavigationView {
+            iOSLayout
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            isUserInputFocused = false
+                            isSystemPromptFocused = false
+                        }
+                    }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        #else
+        macOSLayout
+        #endif
+    }
+    
+    // MARK: - iOS Layout
+    private var iOSLayout: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                modelOutputSection()
+                    .frame(maxWidth: .infinity)
+                
+                systemPromptSection()
+                    .padding(.horizontal, 20)
+                
+                userInputSection()
+                    .padding(.horizontal, 20)
                 
                 controlsSection()
-                    .frame(width: 300)
-                    .padding(.leading, 20)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
             }
-            .padding(.horizontal, 20)
+            .padding(.top, 20)
+        }
+        .background(colors.background)
+        .preferredColorScheme(selectedTheme == .dark ? .dark : .light)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .scrollDismissesKeyboard(.interactively)
+    }
+    
+    // MARK: - macOS Layout
+    private var macOSLayout: some View {
+        HStack(alignment: .top, spacing: 20) {
+            VStack(spacing: 20) {
+                modelOutputSection()
+                    .frame(maxWidth: .infinity)
+                
+                systemPromptSection()
+                    .padding(.horizontal, 20)
+                
+                userInputSection()
+                    .padding(.horizontal, 20)
+                
+                Spacer()
+            }
+            .padding(.top, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            controlsSection()
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 20)
+                .frame(maxWidth: 300, alignment: .leading)
         }
         .background(colors.background)
         .preferredColorScheme(selectedTheme == .dark ? .dark : .light)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
+    // MARK: - Sections
     @ViewBuilder
     private func modelOutputSection() -> some View {
         VStack(alignment: .leading) {
@@ -73,22 +128,26 @@ struct ContentView: View {
                         .foregroundColor(colors.text)
                         .padding(.trailing, 10)
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
+                #if os(macOS)
                 .help("Copy to clipboard")
+                #endif
                 
                 Button(action: clearOutput) {
                     Image(systemName: "trash")
                         .foregroundColor(colors.text)
                         .padding(.trailing, 10)
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
+                #if os(macOS)
                 .help("Clear output")
+                #endif
             }
             
             ScrollViewReader { scrollViewProxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 10) {
-                        ForEach(displayedText.split(separator: "\n"), id: \ .self) { line in
+                        ForEach(displayedText.split(separator: "\n"), id: \.self) { line in
                             if line.hasPrefix("User:") {
                                 Text(line)
                                     .foregroundColor(.blue)
@@ -119,7 +178,7 @@ struct ContentView: View {
                 }
             }
         }
-        .padding()
+        .padding(.horizontal, 20)
     }
     
     @ViewBuilder
@@ -134,6 +193,7 @@ struct ContentView: View {
                 .background(colors.background)
                 .foregroundColor(colors.text)
                 .font(.system(size: 12, weight: .regular, design: .monospaced))
+                .focused($isSystemPromptFocused)
         }
     }
     
@@ -150,6 +210,7 @@ struct ContentView: View {
                 .font(.system(size: 12, weight: .regular, design: .monospaced))
                 .frame(height: selectedAlgorithm == .topK ? 160 : 100)
                 .frame(maxWidth: .infinity)
+                .focused($isUserInputFocused)
         }
     }
     
@@ -173,8 +234,11 @@ struct ContentView: View {
     @ViewBuilder
     private func themePicker() -> some View {
         VStack(alignment: .leading) {
+            Text("Theme:")
+                .font(.headline)
+                .foregroundColor(colors.text)
             Picker("Theme", selection: $selectedTheme) {
-                ForEach(Theme.allCases, id: \ .self) { theme in
+                ForEach(Theme.allCases, id: \.self) { theme in
                     Text(theme.rawValue)
                         .tag(theme)
                 }
@@ -206,7 +270,7 @@ struct ContentView: View {
                 .font(.headline)
                 .foregroundColor(colors.text)
             Picker("Algorithm", selection: $selectedAlgorithm) {
-                ForEach(DecodingAlgorithm.allCases, id: \ .self) { algorithm in
+                ForEach(DecodingAlgorithm.allCases, id: \.self) { algorithm in
                     Text(algorithm.rawValue)
                         .foregroundColor(colors.text)
                         .tag(algorithm)
@@ -276,7 +340,7 @@ struct ContentView: View {
             }
         }
         .disabled(isGenerating)
-        .padding(.bottom, 20)
+        .padding(.bottom, 10)
     }
     
     @MainActor
@@ -327,16 +391,19 @@ struct ContentView: View {
     }
     
     private func copyToClipboard() {
+        #if os(macOS)
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(displayedText, forType: .string)
+        #elseif os(iOS)
+        UIPasteboard.general.string = displayedText
+        #endif
     }
     
     private func clearOutput() {
         displayedText = ""
     }
 }
-
 
 #Preview {
     ContentView()
