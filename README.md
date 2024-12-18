@@ -91,6 +91,8 @@ If you own an **iPhone 16 Pro** (or newer) running **iOS 18** or later, we kindl
 
 ---
 
+![Demo of SwiftMistralCoreML App](demo.gif)
+
 ## Contributing
 
 Contributions are welcome! If you encounter any issues or have suggestions for improvements, please open an issue or submit a pull request in the [GitHub repository](https://github.com/cardona/SwiftMistralCoreML-DemoApp).
