@@ -2,6 +2,8 @@
 
 This demo application demonstrates how to use the [SwiftMistralCoreML](https://github.com/cardona/SwiftMistralCoreML) library to generate conversational AI responses using the Mistral-Interact7B model with CoreML. The app is now adapted for both **macOS** and **iOS**, and supports the **INT4** and **FP16** model variants.
 
+![Demo of SwiftMistralCoreML App](demo.gif)
+
 ---
 
 ## Key Information
